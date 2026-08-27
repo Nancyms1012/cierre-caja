@@ -81,7 +81,24 @@ body {
 }
 .btn:hover { opacity: 0.9; }
 .btn-primary { background: var(--azul); color: #fff; }
+.btn-guardar { background: var(--verde); color: #fff; }
 .btn-ghost { background: transparent; color: var(--rojo); border: 1px solid var(--rojo); }
+
+.actions { align-items: center; flex-wrap: wrap; }
+.guardado-estado {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--verde);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.guardado-estado.visible { opacity: 1; }
+.guardado-estado.error { color: var(--rojo); }
+.nota-guardado {
+  font-size: 0.85rem;
+  color: var(--gris);
+  margin: 10px 2px 0;
+}
 .btn-icon {
   background: transparent;
   border: none;

@@ -12,7 +12,8 @@ y la app calcula automáticamente el **saldo restante**. Al final podés **impri
 - ⚠️ Aviso visual si los gastos superan el monto entregado (saldo negativo).
 - 🖨️ Botón para imprimir / guardar PDF con encabezado (evento, responsable, fecha) y línea de firma.
 - 📱 Diseño responsivo (funciona en celular y computadora).
-- 🔒 Todo corre en el navegador. **Los datos no se guardan** (son del momento).
+- 💾 **Guardado automático en el navegador** (localStorage): los datos NO se pierden al refrescar o cerrar la pestaña. También hay un botón **Guardar** para confirmar manualmente.
+- 🔒 Todo corre en el navegador (los datos se guardan localmente en tu dispositivo, no en un servidor).
 
 ## Cómo usarla
 
@@ -22,7 +23,7 @@ y la app calcula automáticamente el **saldo restante**. Al final podés **impri
 4. Revisá el **Resumen del cierre** (total gastado y saldo restante).
 5. Presioná **🖨️ Imprimir / Guardar PDF** para generar el reporte.
 
-> Nota: como los datos no se guardan, mantené la pestaña abierta hasta terminar y generá el PDF antes de cerrar.
+> Nota: los datos se guardan automáticamente en el navegador que estés usando, así que podés refrescar o cerrar la pestaña sin perderlos. El botón **Limpiar todo** borra los datos guardados. Como el guardado es local a ese navegador/dispositivo, para tener un respaldo permanente generá el PDF al terminar.
 
 ## Estructura del proyecto
 

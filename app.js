@@ -1,5 +1,7 @@
 // ===== Cierre de Caja — Gastos de Evento =====
-// App estática, sin backend. Datos del momento (no se guardan).
+// App estática, sin backend. Los datos se guardan en el navegador (localStorage).
+
+const STORAGE_KEY = "cierreCaja_v1";
 
 /** @type {{fecha:string, num:string, concepto:string, lugar:string, observaciones:string, monto:number}[]} */
 let facturas = [];
@@ -25,10 +27,16 @@ const resCantidad = document.getElementById("resCantidad");
 const saldoRow = document.getElementById("saldoRow");
 const alertaSobregiro = document.getElementById("alertaSobregiro");
 
+const inputEvento = document.getElementById("evento");
+const inputResponsable = document.getElementById("responsable");
+const inputFecha = document.getElementById("fecha");
+
 const btnImprimir = document.getElementById("btnImprimir");
 const btnLimpiar = document.getElementById("btnLimpiar");
+const btnGuardar = document.getElementById("btnGuardar");
 const btnAgregar = document.getElementById("btnAgregar");
 const btnCancelarEdicion = document.getElementById("btnCancelarEdicion");
+const guardadoEstado = document.getElementById("guardadoEstado");
 
 // Índice de la factura en edición (null = agregando una nueva)
 let editIndex = null;
@@ -141,11 +149,15 @@ inputMontoEntregado.addEventListener("input", render);
 // --- Limpiar todo ---
 btnLimpiar.addEventListener("click", () => {
   if (facturas.length === 0 && !inputMontoEntregado.value) return;
-  if (confirm("¿Seguro que querés borrar todas las facturas y reiniciar el cierre?")) {
+  if (confirm("¿Seguro que querés borrar todas las facturas y reiniciar el cierre? Esto también borra los datos guardados en este navegador.")) {
     facturas = [];
     inputMontoEntregado.value = "";
+    inputEvento.value = "";
+    inputResponsable.value = "";
     form.reset();
     salirModoEdicion();
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    inputFecha.value = hoyISO();
     setFechaFacturaHoy();
     render();
   }
@@ -222,7 +234,70 @@ function render() {
     saldoRow.classList.remove("negativo");
     alertaSobregiro.classList.add("hidden");
   }
+
+  // Guardado automático en el navegador
+  guardar();
 }
+
+// ===== Persistencia en el navegador (localStorage) =====
+
+// Guarda todo el estado. Se llama automáticamente en cada cambio.
+function guardar(mostrarAviso = false) {
+  const estado = {
+    evento: inputEvento.value,
+    responsable: inputResponsable.value,
+    fecha: inputFecha.value,
+    montoEntregado: inputMontoEntregado.value,
+    facturas,
+  };
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(estado));
+    if (mostrarAviso) mostrarGuardado("✔ Guardado");
+  } catch (e) {
+    if (mostrarAviso) mostrarGuardado("⚠️ No se pudo guardar", true);
+  }
+}
+
+// Carga el estado guardado (si existe) al abrir la página.
+function cargar() {
+  let raw;
+  try {
+    raw = localStorage.getItem(STORAGE_KEY);
+  } catch (e) {
+    return false;
+  }
+  if (!raw) return false;
+  try {
+    const estado = JSON.parse(raw);
+    inputEvento.value = estado.evento || "";
+    inputResponsable.value = estado.responsable || "";
+    if (estado.fecha) inputFecha.value = estado.fecha;
+    inputMontoEntregado.value = estado.montoEntregado || "";
+    facturas = Array.isArray(estado.facturas) ? estado.facturas : [];
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Muestra un aviso breve de estado de guardado.
+let avisoTimer = null;
+function mostrarGuardado(texto, esError = false) {
+  if (!guardadoEstado) return;
+  guardadoEstado.textContent = texto;
+  guardadoEstado.classList.toggle("error", esError);
+  guardadoEstado.classList.add("visible");
+  clearTimeout(avisoTimer);
+  avisoTimer = setTimeout(() => guardadoEstado.classList.remove("visible"), 2000);
+}
+
+// Botón Guardar (guardado manual con confirmación).
+btnGuardar.addEventListener("click", () => guardar(true));
+
+// Guardar automáticamente cuando cambian los datos del evento.
+[inputEvento, inputResponsable, inputFecha].forEach((el) => {
+  if (el) el.addEventListener("input", () => guardar());
+});
 
 // --- Fecha de hoy (aaaa-mm-dd) ---
 function hoyISO() {
@@ -232,10 +307,12 @@ function setFechaFacturaHoy() {
   if (inputFechaFactura) inputFechaFactura.value = hoyISO();
 }
 
-// --- Fechas por defecto: hoy ---
-(function initFechas() {
-  const fecha = document.getElementById("fecha");
-  if (fecha && !fecha.value) fecha.value = hoyISO();
+// --- Inicialización: cargar datos guardados o poner fecha de hoy ---
+(function init() {
+  const cargado = cargar();
+  if (!cargado && inputFecha && !inputFecha.value) {
+    inputFecha.value = hoyISO();
+  }
   setFechaFacturaHoy();
 })();
 
