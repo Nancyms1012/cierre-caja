@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cierre de Caja — Gastos de Evento</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>Cierre de Caja</h1>
+    <p class="subtitle">Control de gastos del evento</p>
+  </header>
+
+  <main class="container">
+    <!-- Encabezado solo para impresión (se llena desde JS) -->
+    <section class="print-header" id="printHeader">
+      <div class="print-datos">
+        <div><strong>Evento:</strong> <span id="phEvento">—</span></div>
+        <div><strong>Responsable:</strong> <span id="phResponsable">—</span></div>
+        <div><strong>Fecha:</strong> <span id="phFecha">—</span></div>
+      </div>
+    </section>
+
+    <!-- Datos del evento -->
+    <section class="card no-print-controls">
+      <h2>Datos del evento</h2>
+      <div class="field-row">
+        <div class="field">
+          <label for="evento">Nombre del evento</label>
+          <input type="text" id="evento" placeholder="Ej: XTERRA Costa Rica 2026" />
+        </div>
+        <div class="field">
+          <label for="responsable">Responsable</label>
+          <input type="text" id="responsable" placeholder="Tu nombre" />
+        </div>
+        <div class="field">
+          <label for="fecha">Fecha</label>
+          <input type="date" id="fecha" />
+        </div>
+      </div>
+
+      <div class="field field-monto">
+        <label for="montoEntregado">Monto entregado (fondo) — ₡</label>
+        <input type="number" id="montoEntregado" min="0" step="0.01" placeholder="0.00" />
+      </div>
+    </section>
+
+    <!-- Agregar factura -->
+    <section class="card no-print-controls">
+      <h2>Agregar factura</h2>
+      <form id="facturaForm" class="factura-form">
+        <div class="field">
+          <label for="numFactura">N.º de factura</label>
+          <input type="text" id="numFactura" placeholder="Ej: 001234" required />
+        </div>
+        <div class="field field-grow">
+          <label for="concepto">Concepto (a qué corresponde)</label>
+          <input type="text" id="concepto" placeholder="Ej: Hidratación, medallas, transporte..." required />
+        </div>
+        <div class="field">
+          <label for="monto">Monto — ₡</label>
+          <input type="number" id="monto" min="0" step="0.01" placeholder="0.00" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Agregar</button>
+      </form>
+    </section>
+
+    <!-- Tabla de facturas -->
+    <section class="card">
+      <div class="table-head">
+        <h2>Facturas registradas</h2>
+        <span id="contador" class="badge">0 facturas</span>
+      </div>
+      <div class="table-wrapper">
+        <table id="tablaFacturas">
+          <thead>
+            <tr>
+              <th style="width:15%">N.º</th>
+              <th>Concepto</th>
+              <th style="width:20%" class="text-right">Monto (₡)</th>
+              <th style="width:60px" class="no-print"></th>
+            </tr>
+          </thead>
+          <tbody id="facturasBody">
+            <!-- filas dinámicas -->
+          </tbody>
+          <tbody id="emptyState">
+            <tr>
+              <td colspan="4" class="empty">Aún no hay facturas registradas.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Resumen -->
+    <section class="card summary">
+      <h2>Resumen del cierre</h2>
+      <div class="summary-row">
+        <span>Monto entregado</span>
+        <span id="resMonto">₡0.00</span>
+      </div>
+      <div class="summary-row">
+        <span>Total gastado (<span id="resCantidad">0</span> facturas)</span>
+        <span id="resGastado">₡0.00</span>
+      </div>
+      <div class="summary-row total" id="saldoRow">
+        <span>Saldo restante</span>
+        <span id="resSaldo">₡0.00</span>
+      </div>
+      <p id="alertaSobregiro" class="alerta hidden">
+        ⚠️ Los gastos superan el monto entregado.
+      </p>
+    </section>
+
+    <div class="actions no-print">
+      <button id="btnImprimir" class="btn btn-primary">🖨️ Imprimir / Guardar PDF</button>
+      <button id="btnLimpiar" class="btn btn-ghost">Limpiar todo</button>
+    </div>
+
+    <footer class="print-footer">
+      <div class="firma">
+        <span class="firma-linea"></span>
+        <span>Firma del responsable</span>
+      </div>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
