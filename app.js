@@ -27,6 +27,11 @@ const alertaSobregiro = document.getElementById("alertaSobregiro");
 
 const btnImprimir = document.getElementById("btnImprimir");
 const btnLimpiar = document.getElementById("btnLimpiar");
+const btnAgregar = document.getElementById("btnAgregar");
+const btnCancelarEdicion = document.getElementById("btnCancelarEdicion");
+
+// Índice de la factura en edición (null = agregando una nueva)
+let editIndex = null;
 
 // --- Formato de moneda (colones) ---
 const formatoCRC = new Intl.NumberFormat("es-CR", {
@@ -68,7 +73,17 @@ form.addEventListener("submit", (e) => {
     return;
   }
 
-  facturas.push({ fecha, num, concepto, lugar, observaciones, monto });
+  const datos = { fecha, num, concepto, lugar, observaciones, monto };
+
+  if (editIndex !== null) {
+    // Guardar cambios de una factura existente
+    facturas[editIndex] = datos;
+    salirModoEdicion();
+  } else {
+    // Agregar nueva
+    facturas.push(datos);
+  }
+
   form.reset();
   setFechaFacturaHoy();
   inputNum.focus();
@@ -77,9 +92,48 @@ form.addEventListener("submit", (e) => {
 
 // --- Eliminar factura ---
 function eliminarFactura(index) {
+  if (!confirm("¿Eliminar esta factura?")) return;
   facturas.splice(index, 1);
+  // Si estábamos editando esa u otra fila, salir del modo edición
+  if (editIndex !== null) salirModoEdicion();
   render();
 }
+
+// --- Editar factura: cargar sus datos en el formulario ---
+function editarFactura(index) {
+  const f = facturas[index];
+  if (!f) return;
+  inputFechaFactura.value = f.fecha;
+  inputNum.value = f.num;
+  inputConcepto.value = f.concepto;
+  inputLugar.value = f.lugar || "";
+  inputObservaciones.value = f.observaciones || "";
+  inputMonto.value = f.monto;
+
+  editIndex = index;
+  btnAgregar.textContent = "Guardar cambios";
+  btnCancelarEdicion.classList.remove("hidden");
+
+  render();
+  inputFechaFactura.focus();
+  // Llevar el formulario a la vista
+  form.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+// --- Salir del modo edición ---
+function salirModoEdicion() {
+  editIndex = null;
+  btnAgregar.textContent = "Agregar";
+  btnCancelarEdicion.classList.add("hidden");
+}
+
+// --- Cancelar edición ---
+btnCancelarEdicion.addEventListener("click", () => {
+  salirModoEdicion();
+  form.reset();
+  setFechaFacturaHoy();
+  render();
+});
 
 // --- Recalcular al cambiar el monto entregado ---
 inputMontoEntregado.addEventListener("input", render);
@@ -91,6 +145,7 @@ btnLimpiar.addEventListener("click", () => {
     facturas = [];
     inputMontoEntregado.value = "";
     form.reset();
+    salirModoEdicion();
     setFechaFacturaHoy();
     render();
   }
@@ -125,6 +180,7 @@ function render() {
     emptyState.style.display = "none";
     facturas.forEach((f, i) => {
       const tr = document.createElement("tr");
+      if (i === editIndex) tr.classList.add("editando");
       tr.innerHTML = `
         <td>${escapeHtml(fmtFecha(f.fecha))}</td>
         <td>${escapeHtml(f.num)}</td>
@@ -132,9 +188,13 @@ function render() {
         <td>${escapeHtml(f.lugar || "—")}</td>
         <td>${escapeHtml(f.observaciones || "—")}</td>
         <td class="text-right">${fmt(f.monto)}</td>
-        <td class="no-print"><button class="btn-icon" title="Eliminar" aria-label="Eliminar factura">✕</button></td>
+        <td class="no-print acciones-fila">
+          <button class="btn-icon btn-editar" title="Editar" aria-label="Editar factura">✎</button>
+          <button class="btn-icon btn-eliminar" title="Eliminar" aria-label="Eliminar factura">✕</button>
+        </td>
       `;
-      tr.querySelector(".btn-icon").addEventListener("click", () => eliminarFactura(i));
+      tr.querySelector(".btn-editar").addEventListener("click", () => editarFactura(i));
+      tr.querySelector(".btn-eliminar").addEventListener("click", () => eliminarFactura(i));
       facturasBody.appendChild(tr);
     });
   }

@@ -74,7 +74,8 @@
           <label for="observaciones">Observaciones</label>
           <input type="text" id="observaciones" placeholder="Opcional: detalle o nota" />
         </div>
-        <button type="submit" class="btn btn-primary">Agregar</button>
+        <button type="submit" id="btnAgregar" class="btn btn-primary">Agregar</button>
+        <button type="button" id="btnCancelarEdicion" class="btn btn-ghost hidden">Cancelar</button>
       </form>
     </section>
 
@@ -94,7 +95,7 @@
               <th>Lugar</th>
               <th>Observaciones</th>
               <th style="width:14%" class="text-right">Monto (₡)</th>
-              <th style="width:60px" class="no-print"></th>
+              <th style="width:90px" class="no-print"></th>
             </tr>
           </thead>
           <tbody id="facturasBody">
