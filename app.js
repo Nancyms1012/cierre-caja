@@ -1,11 +1,12 @@
 // ===== Cierre de Caja — Gastos de Evento =====
 // App estática, sin backend. Datos del momento (no se guardan).
 
-/** @type {{num:string, concepto:string, monto:number}[]} */
+/** @type {{fecha:string, num:string, concepto:string, monto:number}[]} */
 let facturas = [];
 
 // --- Referencias al DOM ---
 const form = document.getElementById("facturaForm");
+const inputFechaFactura = document.getElementById("fechaFactura");
 const inputNum = document.getElementById("numFactura");
 const inputConcepto = document.getElementById("concepto");
 const inputMonto = document.getElementById("monto");
@@ -33,6 +34,14 @@ const formatoCRC = new Intl.NumberFormat("es-CR", {
 });
 const fmt = (n) => formatoCRC.format(isFinite(n) ? n : 0);
 
+// --- Formato de fecha (dd/mm/aaaa) ---
+function fmtFecha(iso) {
+  if (!iso) return "—";
+  return new Date(iso + "T00:00:00").toLocaleDateString("es-CR", {
+    day: "2-digit", month: "2-digit", year: "numeric",
+  });
+}
+
 // --- Escapar texto para evitar inyección de HTML ---
 function escapeHtml(str) {
   return String(str)
@@ -45,17 +54,19 @@ function escapeHtml(str) {
 // --- Agregar factura ---
 form.addEventListener("submit", (e) => {
   e.preventDefault();
+  const fecha = inputFechaFactura.value;
   const num = inputNum.value.trim();
   const concepto = inputConcepto.value.trim();
   const monto = parseFloat(inputMonto.value);
 
-  if (!num || !concepto || !(monto >= 0) || isNaN(monto)) {
-    alert("Completá el número de factura, el concepto y un monto válido.");
+  if (!fecha || !num || !concepto || !(monto >= 0) || isNaN(monto)) {
+    alert("Completá la fecha, el número de factura, el concepto y un monto válido.");
     return;
   }
 
-  facturas.push({ num, concepto, monto });
+  facturas.push({ fecha, num, concepto, monto });
   form.reset();
+  setFechaFacturaHoy();
   inputNum.focus();
   render();
 });
@@ -76,6 +87,7 @@ btnLimpiar.addEventListener("click", () => {
     facturas = [];
     inputMontoEntregado.value = "";
     form.reset();
+    setFechaFacturaHoy();
     render();
   }
 });
@@ -110,6 +122,7 @@ function render() {
     facturas.forEach((f, i) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
+        <td>${escapeHtml(fmtFecha(f.fecha))}</td>
         <td>${escapeHtml(f.num)}</td>
         <td>${escapeHtml(f.concepto)}</td>
         <td class="text-right">${fmt(f.monto)}</td>
@@ -145,12 +158,19 @@ function render() {
   }
 }
 
-// --- Fecha por defecto: hoy ---
-(function initFecha() {
+// --- Fecha de hoy (aaaa-mm-dd) ---
+function hoyISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+function setFechaFacturaHoy() {
+  if (inputFechaFactura) inputFechaFactura.value = hoyISO();
+}
+
+// --- Fechas por defecto: hoy ---
+(function initFechas() {
   const fecha = document.getElementById("fecha");
-  if (fecha && !fecha.value) {
-    fecha.value = new Date().toISOString().slice(0, 10);
-  }
+  if (fecha && !fecha.value) fecha.value = hoyISO();
+  setFechaFacturaHoy();
 })();
 
 // Render inicial
