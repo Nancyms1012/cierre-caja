@@ -1,7 +1,7 @@
 // ===== Cierre de Caja — Gastos de Evento =====
 // App estática, sin backend. Datos del momento (no se guardan).
 
-/** @type {{fecha:string, num:string, concepto:string, monto:number}[]} */
+/** @type {{fecha:string, num:string, concepto:string, lugar:string, observaciones:string, monto:number}[]} */
 let facturas = [];
 
 // --- Referencias al DOM ---
@@ -9,6 +9,8 @@ const form = document.getElementById("facturaForm");
 const inputFechaFactura = document.getElementById("fechaFactura");
 const inputNum = document.getElementById("numFactura");
 const inputConcepto = document.getElementById("concepto");
+const inputLugar = document.getElementById("lugar");
+const inputObservaciones = document.getElementById("observaciones");
 const inputMonto = document.getElementById("monto");
 const inputMontoEntregado = document.getElementById("montoEntregado");
 
@@ -57,6 +59,8 @@ form.addEventListener("submit", (e) => {
   const fecha = inputFechaFactura.value;
   const num = inputNum.value.trim();
   const concepto = inputConcepto.value.trim();
+  const lugar = inputLugar.value.trim();
+  const observaciones = inputObservaciones.value.trim();
   const monto = parseFloat(inputMonto.value);
 
   if (!fecha || !num || !concepto || !(monto >= 0) || isNaN(monto)) {
@@ -64,7 +68,7 @@ form.addEventListener("submit", (e) => {
     return;
   }
 
-  facturas.push({ fecha, num, concepto, monto });
+  facturas.push({ fecha, num, concepto, lugar, observaciones, monto });
   form.reset();
   setFechaFacturaHoy();
   inputNum.focus();
@@ -125,6 +129,8 @@ function render() {
         <td>${escapeHtml(fmtFecha(f.fecha))}</td>
         <td>${escapeHtml(f.num)}</td>
         <td>${escapeHtml(f.concepto)}</td>
+        <td>${escapeHtml(f.lugar || "—")}</td>
+        <td>${escapeHtml(f.observaciones || "—")}</td>
         <td class="text-right">${fmt(f.monto)}</td>
         <td class="no-print"><button class="btn-icon" title="Eliminar" aria-label="Eliminar factura">✕</button></td>
       `;

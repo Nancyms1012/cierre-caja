@@ -62,11 +62,12 @@ body {
 
 .factura-form {
   display: grid;
-  grid-template-columns: 150px 130px 1fr 140px auto;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
   align-items: end;
 }
 .field-grow { min-width: 0; }
+.factura-form .btn { align-self: end; height: 42px; }
 
 /* Botones */
 .btn {
@@ -140,9 +141,8 @@ td.text-right { font-variant-numeric: tabular-nums; }
 /* Responsive */
 @media (max-width: 640px) {
   .field-row { grid-template-columns: 1fr; }
-  .factura-form { grid-template-columns: 1fr 1fr; }
-  .factura-form .field-grow { grid-column: 1 / -1; }
-  .factura-form .btn { grid-column: 1 / -1; }
+  .factura-form { grid-template-columns: 1fr; }
+  .factura-form .btn { width: 100%; }
 }
 
 /* Impresión */
@@ -153,5 +153,7 @@ td.text-right { font-variant-numeric: tabular-nums; }
   .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
   .print-footer { display: block; }
   .print-header { display: block; }
+  table { font-size: 0.82rem; }
+  th, td { padding: 6px 8px; }
   th:last-child, td:last-child { display: none; }
 }

@@ -63,8 +63,16 @@
           <input type="text" id="concepto" placeholder="Ej: Hidratación, medallas, transporte..." required />
         </div>
         <div class="field">
+          <label for="lugar">Lugar</label>
+          <input type="text" id="lugar" placeholder="Ej: Supermercado, ferretería..." />
+        </div>
+        <div class="field">
           <label for="monto">Monto — ₡</label>
           <input type="number" id="monto" min="0" step="0.01" placeholder="0.00" required />
+        </div>
+        <div class="field field-grow">
+          <label for="observaciones">Observaciones</label>
+          <input type="text" id="observaciones" placeholder="Opcional: detalle o nota" />
         </div>
         <button type="submit" class="btn btn-primary">Agregar</button>
       </form>
@@ -80,10 +88,12 @@
         <table id="tablaFacturas">
           <thead>
             <tr>
-              <th style="width:14%">Fecha</th>
-              <th style="width:13%">N.º</th>
+              <th style="width:11%">Fecha</th>
+              <th style="width:10%">N.º</th>
               <th>Concepto</th>
-              <th style="width:18%" class="text-right">Monto (₡)</th>
+              <th>Lugar</th>
+              <th>Observaciones</th>
+              <th style="width:14%" class="text-right">Monto (₡)</th>
               <th style="width:60px" class="no-print"></th>
             </tr>
           </thead>
@@ -92,7 +102,7 @@
           </tbody>
           <tbody id="emptyState">
             <tr>
-              <td colspan="5" class="empty">Aún no hay facturas registradas.</td>
+              <td colspan="7" class="empty">Aún no hay facturas registradas.</td>
             </tr>
           </tbody>
         </table>
