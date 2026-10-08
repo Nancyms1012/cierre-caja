@@ -82,7 +82,13 @@ body {
 .btn:hover { opacity: 0.9; }
 .btn-primary { background: var(--azul); color: #fff; }
 .btn-guardar { background: var(--verde); color: #fff; }
+.btn-secondary { background: var(--azul-claro); color: var(--azul); border: 1px solid var(--azul); }
 .btn-ghost { background: transparent; color: var(--rojo); border: 1px solid var(--rojo); }
+
+/* Encabezado ordenable */
+.th-sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+.th-sortable:hover { color: var(--azul); }
+.sort-icon { font-size: 0.75rem; opacity: 0.7; }
 
 .actions { align-items: center; flex-wrap: wrap; }
 .guardado-estado {
@@ -175,5 +181,6 @@ td.text-right { font-variant-numeric: tabular-nums; }
   .print-header { display: block; }
   table { font-size: 0.82rem; }
   th, td { padding: 6px 8px; }
+  .sort-icon { display: none; }
   th:last-child, td:last-child { display: none; }
 }

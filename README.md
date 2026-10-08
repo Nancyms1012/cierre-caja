@@ -13,6 +13,8 @@ y la app calcula automáticamente el **saldo restante**. Al final podés **impri
 - 🖨️ Botón para imprimir / guardar PDF con encabezado (evento, responsable, fecha) y línea de firma.
 - 📱 Diseño responsivo (funciona en celular y computadora).
 - 💾 **Guardado automático en el navegador** (localStorage): los datos NO se pierden al refrescar o cerrar la pestaña. También hay un botón **Guardar** para confirmar manualmente.
+- 🔼 **Ordenar por fecha**: hacé clic en el encabezado "Fecha" de la tabla para ordenar ascendente/descendente.
+- 💾 **Exportar / Importar respaldo `.json`**: bajá una copia de todo el cierre (ordenada por fecha) y recuperala en cualquier dispositivo o navegador.
 - 🔒 Todo corre en el navegador (los datos se guardan localmente en tu dispositivo, no en un servidor).
 
 ## Cómo usarla

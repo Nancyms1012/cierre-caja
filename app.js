@@ -34,12 +34,21 @@ const inputFecha = document.getElementById("fecha");
 const btnImprimir = document.getElementById("btnImprimir");
 const btnLimpiar = document.getElementById("btnLimpiar");
 const btnGuardar = document.getElementById("btnGuardar");
+const btnExportar = document.getElementById("btnExportar");
+const btnImportar = document.getElementById("btnImportar");
+const inputImportar = document.getElementById("inputImportar");
 const btnAgregar = document.getElementById("btnAgregar");
 const btnCancelarEdicion = document.getElementById("btnCancelarEdicion");
 const guardadoEstado = document.getElementById("guardadoEstado");
 
+const thFecha = document.getElementById("thFecha");
+const fechaSortIcon = document.getElementById("fechaSortIcon");
+
 // Índice de la factura en edición (null = agregando una nueva)
 let editIndex = null;
+
+// Dirección del orden por fecha: "asc", "desc" o null (sin ordenar)
+let ordenFecha = null;
 
 // --- Formato de moneda (colones) ---
 const formatoCRC = new Intl.NumberFormat("es-CR", {
@@ -143,6 +152,43 @@ btnCancelarEdicion.addEventListener("click", () => {
   render();
 });
 
+// --- Ordenar facturas por fecha (alterna ascendente / descendente) ---
+function ordenarPorFecha() {
+  // Si estamos editando, salimos del modo edición para evitar que el índice se desalinee
+  if (editIndex !== null) {
+    salirModoEdicion();
+    form.reset();
+    setFechaFacturaHoy();
+  }
+  ordenFecha = ordenFecha === "asc" ? "desc" : "asc";
+  ordenarFacturasActual();
+  render();
+}
+
+// Reordena el array `facturas` según `ordenFecha` (si hay un orden activo).
+function ordenarFacturasActual() {
+  if (!ordenFecha) return;
+  const dir = ordenFecha === "asc" ? 1 : -1;
+  facturas.sort((a, b) => {
+    // Fechas en formato ISO (aaaa-mm-dd) se comparan como texto correctamente
+    const fa = a.fecha || "";
+    const fb = b.fecha || "";
+    if (fa < fb) return -1 * dir;
+    if (fa > fb) return 1 * dir;
+    return 0;
+  });
+}
+
+if (thFecha) {
+  thFecha.addEventListener("click", ordenarPorFecha);
+  thFecha.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      ordenarPorFecha();
+    }
+  });
+}
+
 // --- Recalcular al cambiar el monto entregado ---
 inputMontoEntregado.addEventListener("input", render);
 
@@ -209,6 +255,11 @@ function render() {
       tr.querySelector(".btn-eliminar").addEventListener("click", () => eliminarFactura(i));
       facturasBody.appendChild(tr);
     });
+  }
+
+  // Ícono de orden por fecha
+  if (fechaSortIcon) {
+    fechaSortIcon.textContent = ordenFecha === "asc" ? "▲" : ordenFecha === "desc" ? "▼" : "⇅";
   }
 
   // Contador
@@ -293,6 +344,95 @@ function mostrarGuardado(texto, esError = false) {
 
 // Botón Guardar (guardado manual con confirmación).
 btnGuardar.addEventListener("click", () => guardar(true));
+
+// ===== Respaldo: exportar / importar archivo .json =====
+
+// Nombre de archivo sugerido para el respaldo (incluye evento y fecha).
+function nombreArchivoRespaldo() {
+  const base = (inputEvento.value.trim() || "cierre-caja")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // quitar tildes
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return `${base}-${hoyISO()}.json`;
+}
+
+// Exportar: ordena las facturas por fecha (ascendente) y descarga el .json.
+btnExportar.addEventListener("click", () => {
+  // Salir de edición y ordenar por fecha ascendente antes de exportar
+  if (editIndex !== null) {
+    salirModoEdicion();
+    form.reset();
+    setFechaFacturaHoy();
+  }
+  ordenFecha = "asc";
+  ordenarFacturasActual();
+  render();
+
+  const estado = {
+    app: "cierre-caja",
+    version: 1,
+    exportado: new Date().toISOString(),
+    evento: inputEvento.value,
+    responsable: inputResponsable.value,
+    fecha: inputFecha.value,
+    montoEntregado: inputMontoEntregado.value,
+    facturas,
+  };
+
+  const blob = new Blob([JSON.stringify(estado, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = nombreArchivoRespaldo();
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  mostrarGuardado("✔ Respaldo exportado");
+});
+
+// Importar: abre el selector de archivos.
+btnImportar.addEventListener("click", () => inputImportar.click());
+
+inputImportar.addEventListener("change", (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const estado = JSON.parse(reader.result);
+      if (!estado || !Array.isArray(estado.facturas)) {
+        throw new Error("Formato no reconocido");
+      }
+      if (facturas.length > 0 && !confirm("Esto reemplazará los datos actuales por los del respaldo. ¿Continuar?")) {
+        return;
+      }
+      inputEvento.value = estado.evento || "";
+      inputResponsable.value = estado.responsable || "";
+      if (estado.fecha) inputFecha.value = estado.fecha;
+      inputMontoEntregado.value = estado.montoEntregado || "";
+      facturas = estado.facturas;
+      salirModoEdicion();
+      // Ordenar por fecha al importar para dejarlo prolijo
+      ordenFecha = "asc";
+      ordenarFacturasActual();
+      render();
+      mostrarGuardado("✔ Respaldo importado");
+    } catch (err) {
+      alert("No se pudo leer el archivo. Asegurate de seleccionar un respaldo .json válido de esta app.");
+    } finally {
+      inputImportar.value = ""; // permitir volver a importar el mismo archivo
+    }
+  };
+  reader.onerror = () => {
+    alert("No se pudo leer el archivo.");
+    inputImportar.value = "";
+  };
+  reader.readAsText(file);
+});
 
 // Guardar automáticamente cuando cambian los datos del evento.
 [inputEvento, inputResponsable, inputFecha].forEach((el) => {

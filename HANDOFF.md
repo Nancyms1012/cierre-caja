@@ -37,6 +37,8 @@ Idioma: **español**. Moneda: **colones (₡)**, formato `es-CR`.
 - [x] **Guardado automático en el navegador (localStorage, clave `cierreCaja_v1`)**: los datos
       persisten al refrescar o cerrar la pestaña. Botón **💾 Guardar** para guardado manual con confirmación.
 - [x] Botón **Limpiar todo** (borra facturas + datos guardados en el navegador, con confirmación).
+- [x] **Ordenar por fecha** (clic en el encabezado "Fecha", alterna asc/desc).
+- [x] **Exportar / Importar respaldo `.json`** (copia portable entre dispositivos; exportar ordena por fecha).
 - [x] Diseño responsivo (celular y computadora).
 
 ---
@@ -97,11 +99,13 @@ que sigue presente.
 
 ## 7. Próximos pasos sugeridos (pendientes)
 
-### Prioridad alta — Respaldo portable (recomendado hacer ya)
-- [ ] Botón **⬇️ Exportar respaldo**: descargar un archivo `.json` con todo el cierre.
-- [ ] Botón **⬆️ Importar respaldo**: volver a cargar un `.json` previamente exportado.
-- Motivo: el localStorage es local a **ese** navegador/dispositivo. Un respaldo `.json`
-  da una copia portable independiente del navegador.
+### Prioridad alta — Respaldo portable ✅ HECHO
+- [x] Botón **⬇️ Exportar respaldo**: descarga un `.json` con todo el cierre. Al exportar,
+      ordena las facturas por fecha (ascendente). Nombre de archivo: `<evento>-<aaaa-mm-dd>.json`.
+- [x] Botón **⬆️ Importar respaldo**: carga un `.json` previamente exportado (valida formato,
+      pide confirmación si hay datos, reemplaza el estado y ordena por fecha).
+- [x] **Ordenar la tabla por fecha**: clic en el encabezado "Fecha" alterna ascendente/descendente
+      (ícono ▲ / ▼ / ⇅). Lógica en `ordenarPorFecha()` + `ordenarFacturasActual()`.
 
 ### Prioridad media — Para el evento del próximo mes (~septiembre 2026)
 - [ ] Guardado **en la nube con Cloudflare Workers KV** (acceso desde cualquier dispositivo, historial de cierres).

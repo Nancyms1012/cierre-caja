@@ -89,7 +89,9 @@
         <table id="tablaFacturas">
           <thead>
             <tr>
-              <th style="width:11%">Fecha</th>
+              <th style="width:12%" id="thFecha" class="th-sortable" title="Ordenar por fecha" tabindex="0" role="button">
+                Fecha <span id="fechaSortIcon" class="sort-icon"></span>
+              </th>
               <th style="width:10%">N.º</th>
               <th>Concepto</th>
               <th>Lugar</th>
@@ -133,11 +135,15 @@
     <div class="actions no-print">
       <button id="btnGuardar" class="btn btn-guardar">💾 Guardar</button>
       <button id="btnImprimir" class="btn btn-primary">🖨️ Imprimir / Guardar PDF</button>
+      <button id="btnExportar" class="btn btn-secondary">⬇️ Exportar respaldo</button>
+      <button id="btnImportar" class="btn btn-secondary">⬆️ Importar respaldo</button>
       <button id="btnLimpiar" class="btn btn-ghost">Limpiar todo</button>
       <span id="guardadoEstado" class="guardado-estado" role="status" aria-live="polite"></span>
+      <input type="file" id="inputImportar" accept="application/json,.json" class="hidden" />
     </div>
     <p class="nota-guardado no-print">
       💡 Tus datos se guardan automáticamente en este navegador y no se pierden al refrescar la página.
+      Usá <strong>Exportar respaldo</strong> para bajar una copia en archivo, e <strong>Importar respaldo</strong> para recuperarla en cualquier dispositivo.
     </p>
 
     <footer class="print-footer">
